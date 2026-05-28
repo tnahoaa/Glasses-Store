@@ -92,3 +92,115 @@ function loadProducts() {
 }
 
 window.addEventListener('DOMContentLoaded', loadProducts);
+
+let cart = [];
+
+// FEATURE CART: Hiển thị thông báo Toast nhanh khi có tương tác hành động
+function showToast(msg) {
+    let t = document.getElementById('toast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.className = 'toast';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// FEATURE CART: Thêm sản phẩm vào giỏ hàng & tạo hiệu ứng đổi chữ trên Button
+function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const existing = cart.find(i => i.id === productId);
+    if (existing) {
+        existing.quantity += 1;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+
+    // Hiệu ứng tương tác UI đổi trạng thái nút thêm
+    const btn = document.getElementById(`btn-${productId}`);
+    if (btn) {
+        btn.classList.add('added');
+        btn.textContent = '✔ Đã thêm!';
+        setTimeout(() => {
+            btn.classList.remove('added');
+            btn.innerHTML = '🛒 Thêm vào giỏ';
+        }, 1200);
+    }
+
+    showToast(`✅ Đã thêm "${product.name}" vào giỏ!`);
+    renderCart();
+}
+
+// FEATURE CART: Thay đổi số lượng tăng/giảm mặt hàng ngay trong giỏ
+function changeQty(productId, delta) {
+    const item = cart.find(i => i.id === productId);
+    if (!item) return;
+    item.quantity += delta;
+    if (item.quantity <= 0) {
+        cart = cart.filter(i => i.id !== productId);
+    }
+    renderCart();
+}
+
+// FEATURE CART: Làm trống giỏ hàng
+function clearCart() {
+    if (cart.length === 0) return;
+    if (!confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) return;
+    cart = [];
+    renderCart();
+}
+
+// FEATURE CART: Vẽ lại giỏ hàng và thực hiện tính toán tổng tiền
+function renderCart() {
+    const container  = document.getElementById('cart-items');
+    const footer     = document.getElementById('cart-footer');
+    const totalEl    = document.getElementById('cart-total-price');
+    const countEl    = document.getElementById('cart-count');
+    if (!container) return;
+
+    const totalQty   = cart.reduce((s, i) => s + i.quantity, 0);
+    const totalPrice = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+
+    if (countEl) countEl.textContent = totalQty;
+
+    if (cart.length === 0) {
+        container.innerHTML = '<p class="empty-cart">🛍️ Chưa có sản phẩm nào trong giỏ.</p>';
+        if (footer) footer.style.display = 'none';
+        return;
+    }
+
+    container.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img class="cart-item-img" src="${item.img}" alt="${item.name}"
+                 onerror="this.src='https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=100&q=60'">
+            <div class="cart-item-info">
+                <p class="cart-item-title">${item.name}</p>
+                <p class="cart-item-price">${fmt(item.price * item.quantity)}</p>
+            </div>
+            <div class="qty-controls">
+                <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+                <span class="qty-num">${item.quantity}</span>
+                <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+        </div>
+    `).join('');
+
+    if (totalEl)  totalEl.textContent  = fmt(totalPrice);
+    if (footer)   footer.style.display = 'block';
+}
+
+// FEATURE CART: Xử lý thông báo Checkout khi bấm đặt hàng
+function checkout() {
+    if (cart.length === 0) return;
+    const totalPrice = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const items = cart.map(i => `${i.name} x${i.quantity}`).join('\n');
+    alert(`🎉 Đặt hàng thành công!\n\nSản phẩm:\n${items}\n\nTổng tiền: ${fmt(totalPrice)}\n\nCảm ơn bạn đã mua sắm! 🛍️`);
+    cart = [];
+    renderCart();
+}
