@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa Hàng Kính Mắt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>👓 Cửa Hàng <span>Kính Mắt</span></h1>
+        <div class="cart-btn" onclick="document.querySelector('.cart-sidebar').scrollIntoView({behavior:'smooth'})">
+            <span class="icon">🛒</span>
+            Giỏ hàng: <span id="cart-count">0</span> món
+        </div>
+    </header>
+
+
+    <div class="filter-bar" id="filter-bar">
+      
+    </div>
+
+    <div class="main-container">
+
+        <div class="products" id="product-list">
+        </div>
+
+        <div class="cart-sidebar">
+            <div class="cart-header">
+                <h2>🛍️ Giỏ Hàng Của Bạn</h2>
+                <button class="clear-btn" onclick="clearCart()">Xóa tất cả</button>
+            </div>
+            <div class="cart-items-scroll" id="cart-items">
+                <p class="empty-cart">🛍️ Chưa có sản phẩm nào trong giỏ.</p>
+            </div>
+            <div class="cart-footer" id="cart-footer" style="display:none">
+                <div class="cart-total-row">
+                    <span class="cart-total-label">Tổng cộng</span>
+                    <span class="cart-total-price" id="cart-total-price">0 đ</span>
+                </div>
+                <button class="btn-checkout" onclick="checkout()">
+                    💳 Thanh Toán Ngay
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="scrip.js"></script>
+</body>
+</html>
